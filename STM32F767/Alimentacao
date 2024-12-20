@@ -1,0 +1,131 @@
+Para utilizar o User-USB do CN13 (Micro-USB tipo B):
+
+(Consultar o documento "um1974-stm32-nucleo144-boards-mb1137-stmicroelectronics", cap 6.10 "USB OTG FS or device")
+
+
+"USB OTG FS or device
+The STM32 Nucleo-144 board supports USB OTG or device-full-speed communication via
+a USB Micro-AB connector (CN13) and USB power switch (U12) connected to VBUS.
+Note:
+The NUCLEO-F303ZE board supports the USB device FS only. All the other STM32
+Nucleo-144 boards support the USB OTG.
+Warning:
+USB Micro–AB connector (CN13) cannot power the Nucleo-
+144 board. To avoid damaging the STM32, it is mandatory to
+power the Nucleo-144 before connecting a USB cable on
+CN13. Otherwise there is a risk of current injection on STM32
+I/Os.
+A green LED LD8 lights up in one of these cases:
+•Power switch (U12) is ON and STM32 Nucleo-144 board works as a USB host
+•VBUS is powered by another USB host when the STM32 Nucleo-144 board works as a
+USB device.
+The red LED LD7 lights up if over-current occurs when +5 V is enabled on VBUS in USB host
+mode.
+Note:
+1. It is recommended to power Nucleo-144 board by an external power supply when using
+USB OTG or host function.
+2. JP4 must be ON when using USB OTG FS.
+The NUCLEO-F303ZE board does not support the OTG function but it supports USB 2.0
+full-speed, device-mode communication via a USB Micro-AB connector (CN13). USB
+disconnection simulation is implemented by PG6, which controls 1.5 K pull-up resistor (R70)
+on USB D+ line. Detection of 5 V power on USB connector (CN13) is available on PG7
+thanks to a bridge between R62 and R63 resistors."
+
+
+
+
+A placa STM32 Nucleo-144 suporta comunicação USB OTG ou de velocidade máxima do dispositivo 
+por meio de um conector USB Micro-AB (CN13) e um interruptor de alimentação USB (U12) conectado ao VBUS.
+
+WARNING:
+
+O conector USB Micro–AB (CN13) não pode alimentar a placa Nucleo-
+144. Para evitar danos ao STM32, é obrigatório
+alimentar o Nucleo-144 antes de conectar um cabo USB no
+CN13. Caso contrário, há risco de injeção de corrente nas IOs do STM32.
+
+Um LED verde LD8 acende em um destes casos:
+•O interruptor de energia (U12) está LIGADO e a placa STM32 Nucleo-144 funciona como um host USB
+•O VBUS é alimentado por outro host USB quando a placa STM32 Nucleo-144 funciona como um
+dispositivo USB.
+
+O LED vermelho LD7 acende se ocorrer sobrecorrente quando +5 V estiver habilitado no VBUS no
+modo host USB.
+
+
+Nota:
+1. É recomendado alimentar a placa Nucleo-144 por uma fonte de alimentação externa ao usar
+USB OTG ou função host.
+2. JP4 deve estar LIGADO ao usar USB OTG FS.
+A placa NUCLEO-F303ZE não suporta a função OTG, mas suporta comunicação USB 2.0
+full-speed, modo dispositivo por meio de um conector USB Micro-AB (CN13). A simulação de desconexão USB
+é implementada pelo PG6, que controla o resistor pull-up de 1,5 K (R70)
+na linha USB D+. A detecção de energia de 5 V no conector USB (CN13) está disponível no PG7
+graças a uma ponte entre os resistores R62 e R63.
+
+
+
+
+Pinos Principais e suas Funções:
+
+PA8 (USB SOF): Sinal de início de quadro (Start of Frame) utilizado para sincronizar dispositivos USB.
+PA9 (USB VBUS): Fornece a alimentação de 5V para dispositivos conectados ao USB.
+PA10 (USB ID): Determina se o dispositivo conectado ao USB é um host ou um dispositivo.
+PA11 (USB DM): Uma das linhas de dados utilizadas para a comunicação USB.
+PA12 (USB DP): Outra linha de dados utilizada para a comunicação USB.
+PG6 (USB GPIO OUT): Pino de saída geral que pode ser utilizado para controlar o power switch do USB ou o pull-up do D+ (dependendo da placa).
+PG7 (USB GPIO IN): Detecta alta corrente 
+
+
+
+
+
+
+
+Alimentação Externa:
+
+
+"6.4
+Power supply and power selection
+The power supply is provided either by the host PC through the USB cable or by an external
+source: VIN (7 V-12 V), E5V (5 V) or +3.3 V power supply pins on CN8 or CN11. In case VIN,
+E5V or +3.3 V is used to power the Nucleo-144 board, this power source must comply with
+the standard EN-60950-1: 2006+A11/2009 and must be Safety Extra Low Voltage (SELV)
+with limited power capability.
+In case the power supply is +3.3 V, the ST-LINK is not powered and cannot be used."
+
+"6.4.2
+External power supply inputs
+The Nucleo-144 board and its shield boards can be powered in three different ways from an
+external power supply, depending on the voltage used. The three power sources are
+summarized in the Table 7.
+When STM32 Nucleo-144 board is power supplied by VIN or E5V, the jumper configuration
+must be the following:
+•Jumper JP3 on pin 1 and pin 2 for E5V or jumper JP3 on pin 5 and pin 6 for VIN
+•Jumper JP1 OFF"
+
+
+
+
+
+Usando VIN ou E5V como fonte de alimentação externa
+Quando alimentado por VIN ou E5V, ainda é possível usar o ST-LINK para programação ou
+depuração apenas, mas é obrigatório alimentar a placa primeiro usando VIN ou E5V, então
+conectar o cabo USB ao PC. Dessa forma, a enumeração é bem-sucedida, graças à
+fonte de alimentação externa.
+O seguinte procedimento de sequência de energia deve ser respeitado:
+1. Conecte o jumper JP3 entre o pino 1 e o pino 2 para E5V ou entre o pino 5 e o pino 6 para
+VIN
+2. Verifique se JP1 foi removido
+3. Conecte a fonte de energia externa ao VIN ou E5V
+4. Ligue a fonte de alimentação externa 7 V< VIN < 12 V para VIN, ou 5 V para E5V
+5. Verifique se o LED verde LD6 está LIGADO
+6. Conecte o PC ao conector USB CN1
+Se esta ordem não for respeitada, a placa pode ser alimentada por USB (U5V) primeiro, depois por VIN ou
+E5V, pois os seguintes riscos podem ser encontrados:
+1. Se mais de 300 mA de corrente for necessária para a placa, o PC pode ser danificado ou a
+corrente fornecida pode ser limitada pelo PC. Como consequência, a placa não é alimentada
+corretamente.
+2.300 mA são solicitados na enumeração (já que JP1 deve estar DESLIGADO), então há risco de que a
+solicitação seja rejeitada e a enumeração não seja bem-sucedida se o PC não puder fornecer
+tal corrente. Consequentemente, a placa não é alimentada (o LED LD6 permanece DESLIGADO).

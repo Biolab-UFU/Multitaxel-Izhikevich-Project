@@ -1,0 +1,40 @@
+HAL_StatusTypeDef HAL_ADC_Start(ADC_HandleTypeDef* hadc);
+HAL_StatusTypeDef HAL_ADC_Stop(ADC_HandleTypeDef* hadc);
+HAL_StatusTypeDef HAL_ADC_PollForConversion(ADC_HandleTypeDef* hadc, uint32_t Timeout);
+
+HAL_StatusTypeDef HAL_ADC_PollForEvent(ADC_HandleTypeDef* hadc, uint32_t EventType, uint32_t Timeout);
+
+HAL_StatusTypeDef HAL_ADC_Start_IT(ADC_HandleTypeDef* hadc);
+HAL_StatusTypeDef HAL_ADC_Stop_IT(ADC_HandleTypeDef* hadc);
+
+void              HAL_ADC_IRQHandler(ADC_HandleTypeDef* hadc);
+
+HAL_StatusTypeDef HAL_ADC_Start_DMA(ADC_HandleTypeDef* hadc, uint32_t* pData, uint32_t Length);
+HAL_StatusTypeDef HAL_ADC_Stop_DMA(ADC_HandleTypeDef* hadc);
+
+uint32_t          HAL_ADC_GetValue(ADC_HandleTypeDef* hadc);
+
+void       HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc);
+void       HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc);
+void       HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc);
+void       HAL_ADC_ErrorCallback(ADC_HandleTypeDef *hadc);
+/**
+  * @}
+  */
+
+/** @addtogroup ADC_Exported_Functions_Group3
+  * @{
+  */
+/* Peripheral Control functions *************************************************/
+HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConfTypeDef* sConfig);
+HAL_StatusTypeDef HAL_ADC_AnalogWDGConfig(ADC_HandleTypeDef* hadc, ADC_AnalogWDGConfTypeDef* AnalogWDGConfig);
+/**
+  * @}
+  */
+
+/** @addtogroup ADC_Exported_Functions_Group4
+  * @{
+  */
+/* Peripheral State functions ***************************************************/
+uint32_t HAL_ADC_GetState(ADC_HandleTypeDef* hadc);
+uint32_t HAL_ADC_GetError(ADC_HandleTypeDef *hadc);
