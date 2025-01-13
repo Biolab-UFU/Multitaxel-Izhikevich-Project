@@ -1,0 +1,6 @@
+../app/app.c:65:6:initialize_taxels	24	static
+../app/app.c:77:6:app_setup	8	static
+../app/app.c:88:6:switch_row	16	static
+../app/app.c:109:6:HAL_TIM_PeriodElapsedCallback	32	static
+../app/app.c:135:6:update_taxels	40	static
+../app/app.c:171:7:NormalizedSignal	16	static
