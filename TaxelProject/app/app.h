@@ -30,3 +30,4 @@ void update_taxels(Taxel *taxels, uint16_t *adc_values, int num);
 float NormalizedSignal(float V);
 
 #endif /* APP_H_ */
+

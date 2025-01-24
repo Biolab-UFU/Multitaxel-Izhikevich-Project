@@ -16,15 +16,14 @@
 #define c       -65     // Potencial de repouso após um spike
 #define d       8       // Ajuste na recuperação após um spike
 #define vth     30      // Potencial de limiar (threshold)
-#define V_min   1.5     // Valor mínimo de tensão do sensor
+#define V_min   1.65     // Valor mínimo de tensão do sensor
 #define V_max   3.3     // Valor máximo de tensão do sensor
-#define dt      2       // Intervalo de tempo para discretização
+#define dt      1       // Intervalo de tempo para discretização
 #define G       20      // Ganho da corrente do modelo
 
 // ==================== VARIÁVEIS EXTERNAS ====================
 extern ADC_HandleTypeDef hadc1;      // Manipulador do ADC
 extern TIM_HandleTypeDef htim6;      // Manipulador do Timer 6
-extern uint8_t colunaAtual;          // Coluna atualmente ativa
 
 // ==================== VARIÁVEIS GLOBAIS ====================
 const uint8_t buffer_size = 4;       // Tamanho do buffer do ADC
@@ -77,7 +76,7 @@ void app_setup(void)
  * @brief Alterna a coluna ativa dos sensores.
  * @param coluna Número da coluna a ser ativada (0 a 3).
  */
-void switch_row(uint8_t coluna) {
+void switch_row(uint8_t row) {
     // Desativa todas as colunas
     HAL_GPIO_WritePin(Row_1_GPIO_Port, Row_1_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(Row_2_GPIO_Port, Row_2_Pin, GPIO_PIN_SET);
@@ -85,7 +84,7 @@ void switch_row(uint8_t coluna) {
     HAL_GPIO_WritePin(Row_4_GPIO_Port, Row_4_Pin, GPIO_PIN_SET);
 
     // Ativa a coluna especificada
-    switch (coluna) {
+    switch (row) {
         case 0: HAL_GPIO_WritePin(Row_1_GPIO_Port, Row_1_Pin, GPIO_PIN_RESET); break;
         case 1: HAL_GPIO_WritePin(Row_2_GPIO_Port, Row_2_Pin, GPIO_PIN_RESET); break;
         case 2: HAL_GPIO_WritePin(Row_3_GPIO_Port, Row_3_Pin, GPIO_PIN_RESET); break;
@@ -99,22 +98,22 @@ void switch_row(uint8_t coluna) {
  * @param htim Manipulador do timer que gerou o evento.
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    static uint8_t coluna_atual = 0;
+    static uint8_t current_row = 0;
 
     if (htim == &htim6) { // Verifica se a interrupção veio do Timer 6
         uint16_t adc_values[4]; // Buffer temporário para leituras do ADC
 
         // Copia os valores do ADC para o buffer
-        for (uint8_t linha = 0; linha < 4; linha++) {
-            adc_values[linha] = adc_buffer[linha];
+        for (uint8_t coluna = 0; coluna < 4; coluna++) {
+            adc_values[coluna] = adc_buffer[coluna];
         }
 
         // Atualiza os taxels da coluna ativa
-        update_taxels(&taxels[coluna_atual * 4], adc_values, 4);
+        update_taxels(&taxels[current_row * 4], adc_values, 4);
 
         // Alterna para a próxima coluna
-        switch_row(coluna_atual);
-        coluna_atual = (coluna_atual + 1) % 4;
+        switch_row(current_row);
+        current_row = (current_row + 1) % 4;
     }
 }
 
@@ -163,3 +162,4 @@ void update_taxels(Taxel *taxels, uint16_t *adc_values, int num) {
 float NormalizedSignal(float V) {
     return (V - V_min) / (V_max - V_min);
 }
+
