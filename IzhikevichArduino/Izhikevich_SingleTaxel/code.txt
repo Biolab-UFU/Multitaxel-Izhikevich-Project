@@ -1,0 +1,116 @@
+#include <Arduino.h>
+#include <avr/io.h>
+#include <avr/interrupt.h>
+
+#define NUM_TAXELS 16
+#define dt 1
+#define G 20
+#define vth 30
+#define a 0.02
+#define b 0.2
+#define c -65
+#define d 8
+
+volatile uint16_t adc_buffer[4]; // Buffer para armazenar leituras do ADC
+
+struct Taxel {
+    float V_sensor_old, V_sensor_new;
+    float v_m_old, v_m_new;
+    float u_old, u_new;
+    float I;
+};
+
+Taxel taxels[NUM_TAXELS];
+
+// Função de inicialização do Timer1
+void setupTimer() {
+    cli(); // Desabilita interrupções globais
+    TCCR1A = 0;  // Configuração do Timer1 em modo CTC
+    TCCR1B = (1 << WGM12) | (1 << CS12); // Modo CTC, prescaler 256
+    OCR1A = 62499; // Interrupção a cada 50 ms (16 MHz / (256 * 50 Hz) - 1)
+    TIMSK1 |= (1 << OCIE1A); // Habilita interrupção do Timer1
+    sei(); // Habilita interrupções globais
+}
+
+// Rotina de interrupção do Timer1
+ISR(TIMER1_COMPA_vect) {
+    static uint8_t current_row = 0;
+
+    // Alterna linha ativa (simulação do switch_row)
+    switch_row(current_row);
+
+    // Simula leitura do ADC (substituir por analogRead nos pinos apropriados)
+    for (uint8_t coluna = 0; coluna < 4; coluna++) {
+        adc_buffer[coluna] = analogRead(A0 + coluna); // Supondo que as entradas do ADC sejam A0-A3
+    }
+
+    update_taxels(&taxels[current_row * 4], adc_buffer, 4);
+
+    // Alterna para a próxima linha
+    current_row = (current_row + 1) % 4;
+}
+
+void switch_row(uint8_t row) {
+    // Simulação da ativação de linhas dos sensores (modifique conforme seu circuito)
+    digitalWrite(2, row == 0 ? LOW : HIGH);
+    digitalWrite(3, row == 1 ? LOW : HIGH);
+    digitalWrite(4, row == 2 ? LOW : HIGH);
+    digitalWrite(5, row == 3 ? LOW : HIGH);
+}
+
+// Inicializa os taxels
+void initialize_taxels(Taxel *taxels, int num) {
+    for (int i = 0; i < num; i++) {
+        taxels[i].V_sensor_old = 0;
+        taxels[i].V_sensor_new = 3.3;
+        taxels[i].v_m_old = -30;
+        taxels[i].v_m_new = -30;
+        taxels[i].u_old = 0;
+        taxels[i].u_new = 0;
+        taxels[i].I = 0;
+    }
+}
+
+// Atualiza os taxels com os valores lidos do ADC
+void update_taxels(Taxel *taxels, uint16_t *adc_values, int num) {
+    for (int i = 0; i < num; i++) {
+        taxels[i].V_sensor_old = taxels[i].V_sensor_new;
+        taxels[i].V_sensor_new = adc_values[i] * (5.0 / 1023.0); // Conversão ADC (Arduino usa 5V)
+
+        float V_old_normalized = (taxels[i].V_sensor_old - 1.65) / (3.3 - 1.65);
+        float V_new_normalized = (taxels[i].V_sensor_new - 1.65) / (3.3 - 1.65);
+
+        taxels[i].I = G * (V_new_normalized - V_old_normalized) / dt;
+
+        taxels[i].v_m_old = taxels[i].v_m_new;
+        taxels[i].u_old = taxels[i].u_new;
+
+        taxels[i].v_m_new = taxels[i].v_m_old + dt * (0.04 * taxels[i].v_m_old * taxels[i].v_m_old
+                             + 5 * taxels[i].v_m_old + 140 - taxels[i].u_old + taxels[i].I);
+
+        taxels[i].u_new = taxels[i].u_old + dt * (a * (b * taxels[i].v_m_old - taxels[i].u_old));
+
+        if (taxels[i].v_m_new >= vth) {
+            taxels[i].v_m_new = c;
+            taxels[i].u_new += d;
+            digitalWrite(13, HIGH); // Sinaliza spike no LED do Arduino
+            delay(1);
+            digitalWrite(13, LOW);
+        }
+    }
+}
+
+void setup() {
+    Serial.begin(9600);
+    pinMode(2, OUTPUT);
+    pinMode(3, OUTPUT);
+    pinMode(4, OUTPUT);
+    pinMode(5, OUTPUT);
+    pinMode(13, OUTPUT); // LED indicador de spike
+    setupTimer();
+    initialize_taxels(taxels, NUM_TAXELS);
+}
+
+void loop() {
+    // O código principal pode rodar livremente, pois as leituras acontecem no Timer1 ISR
+}

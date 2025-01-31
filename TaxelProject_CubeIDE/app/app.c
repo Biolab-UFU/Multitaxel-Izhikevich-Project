@@ -98,24 +98,31 @@ void switch_row(uint8_t row) {
  * @param htim Manipulador do timer que gerou o evento.
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    static uint8_t current_row = 0;
+    static uint8_t current_row = 0; // Linha inicial
 
     if (htim == &htim6) { // Verifica se a interrupção veio do Timer 6
-        uint16_t adc_values[4]; // Buffer temporário para leituras do ADC
+        // Buffer temporário para armazenar leituras do ADC para uma linha
+        uint16_t adc_values[4];
 
-        // Copia os valores do ADC para o buffer
-        for (uint8_t coluna = 0; coluna < 4; coluna++) {
-            adc_values[coluna] = adc_buffer[coluna];
+        // Itera sobre todas as linhas
+        for (uint8_t linha = 0; linha < 4; linha++) {
+            // Ativa a linha atual
+            switch_row(current_row);
+
+            // Realiza a leitura do ADC para a linha ativa
+            for (uint8_t coluna = 0; coluna < 4; coluna++) {
+                adc_values[coluna] = adc_buffer[coluna];
+            }
+
+            // Atualiza a estrutura dos taxels com os valores lidos
+            update_taxels(&taxels[current_row * 4], adc_values, 4);
+
+            // Alterna para a próxima linha
+            current_row = (current_row + 1) % 4;
         }
-
-        // Atualiza os taxels da coluna ativa
-        update_taxels(&taxels[current_row * 4], adc_values, 4);
-
-        // Alterna para a próxima coluna
-        switch_row(current_row);
-        current_row = (current_row + 1) % 4;
     }
 }
+
 
 /**
  * @brief Atualiza os estados dos taxels com base nas leituras do ADC.
