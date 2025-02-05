@@ -18,7 +18,7 @@
 #define vth     30      // Potencial de limiar (threshold)
 #define V_min   1.65     // Valor mínimo de tensão do sensor
 #define V_max   3.3     // Valor máximo de tensão do sensor
-#define dt      1       // Intervalo de tempo para discretização
+#define dt      0.001       // Intervalo de tempo para discretização
 #define G       20      // Ganho da corrente do modelo
 
 // ==================== VARIÁVEIS EXTERNAS ====================
@@ -29,8 +29,7 @@ extern TIM_HandleTypeDef htim6;      // Manipulador do Timer 6
 const uint8_t buffer_size = 4;       // Tamanho do buffer do ADC
 uint32_t adc_buffer[4];              // Buffer de leitura do ADC
 uint8_t adc_ready = 0;               // Flag indicando que o ADC está pronto
-uint32_t sensor_map[4][4];           // Mapeamento de sensores
-
+uint8_t current_row = 0; 			 // Linha inicial
 
 // Array para armazenar os estados dos taxels
 Taxel taxels[NUM_TAXELS];
@@ -67,16 +66,17 @@ void initialize_taxels(Taxel *taxels, int num) {
 
 void app_setup(void)
 {
+	initialize_taxels(taxels, NUM_TAXELS);
+	select_row(current_row);
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, buffer_size); // Iniciar ADC com DMA
     HAL_TIM_Base_Start_IT(&htim6);
-    initialize_taxels(taxels, NUM_TAXELS);
 }
 
 /**
  * @brief Alterna a coluna ativa dos sensores.
  * @param coluna Número da coluna a ser ativada (0 a 3).
  */
-void switch_row(uint8_t row) {
+void select_row(uint8_t row) {
     // Desativa todas as colunas
     HAL_GPIO_WritePin(Row_1_GPIO_Port, Row_1_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(Row_2_GPIO_Port, Row_2_Pin, GPIO_PIN_SET);
@@ -98,28 +98,21 @@ void switch_row(uint8_t row) {
  * @param htim Manipulador do timer que gerou o evento.
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    static uint8_t current_row = 0; // Linha inicial
-
-    if (htim == &htim6) { // Verifica se a interrupção veio do Timer 6
+	// Verifica se a interrupção veio do Timer 6
+    if (htim == &htim6) {
         // Buffer temporário para armazenar leituras do ADC para uma linha
         uint16_t adc_values[4];
 
-        // Itera sobre todas as linhas
-        for (uint8_t linha = 0; linha < 4; linha++) {
-            // Ativa a linha atual
-            switch_row(current_row);
-
-            // Realiza a leitura do ADC para a linha ativa
-            for (uint8_t coluna = 0; coluna < 4; coluna++) {
-                adc_values[coluna] = adc_buffer[coluna];
-            }
-
-            // Atualiza a estrutura dos taxels com os valores lidos
-            update_taxels(&taxels[current_row * 4], adc_values, 4);
-
-            // Alterna para a próxima linha
-            current_row = (current_row + 1) % 4;
+        // Realiza a leitura do ADC para a linha ativa
+        for (uint8_t coluna = 0; coluna < 4; coluna++) {
+        	adc_values[coluna] = adc_buffer[coluna];
         }
+
+        // Atualiza a estrutura dos taxels com os valores lidos
+        update_taxels(&taxels[current_row * 4], adc_values, 4);
+        // Alterna para a próxima linha
+        current_row = (current_row + 1) % 4;
+        select_row(current_row);
     }
 }
 
@@ -136,8 +129,8 @@ void update_taxels(Taxel *taxels, uint16_t *adc_values, int num) {
         taxels[i].V_sensor_old = taxels[i].V_sensor_new;
         taxels[i].V_sensor_new = adc_values[i] * (3.3 / 4095.0); // Conversão ADC -> Tensão
 
-        float V_old_normalized = NormalizedSignal(taxels[i].V_sensor_old);
-        float V_new_normalized = NormalizedSignal(taxels[i].V_sensor_new);
+        float V_old_normalized = normalized_signal(taxels[i].V_sensor_old);
+        float V_new_normalized = normalized_signal(taxels[i].V_sensor_new);
 
         // Calcula a corrente de entrada
         taxels[i].I = G * (V_new_normalized - V_old_normalized) / dt;
@@ -150,6 +143,11 @@ void update_taxels(Taxel *taxels, uint16_t *adc_values, int num) {
                              + 5 * taxels[i].v_m_old + 140 - taxels[i].u_old + taxels[i].I);
 
         taxels[i].u_new = taxels[i].u_old + dt * (a * (b * taxels[i].v_m_old - taxels[i].u_old));
+
+        // Limite inferior
+        if(taxels[i].v_m_new < -30){
+        	taxels[i].v_m_new = -30;
+        }
 
         // Detecta spikes
         if (taxels[i].v_m_new >= vth) {
@@ -166,7 +164,7 @@ void update_taxels(Taxel *taxels, uint16_t *adc_values, int num) {
  * @param V Tensão a ser normalizada.
  * @return Valor normalizado.
  */
-float NormalizedSignal(float V) {
+float normalized_signal(float V) {
     return (V - V_min) / (V_max - V_min);
 }
 

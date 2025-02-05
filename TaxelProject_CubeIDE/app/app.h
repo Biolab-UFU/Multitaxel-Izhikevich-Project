@@ -25,9 +25,9 @@ typedef struct {
 
 void initialize_taxels(Taxel *taxels, int num);
 void app_setup(void);
-void switch_row(uint8_t coluna);
+void select_row(uint8_t coluna);
 void update_taxels(Taxel *taxels, uint16_t *adc_values, int num);
-float NormalizedSignal(float V);
+float normalized_signal(float V);
 
 #endif /* APP_H_ */
 
