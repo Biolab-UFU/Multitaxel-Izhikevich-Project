@@ -17,7 +17,7 @@ Taxel 13:   PE7  (20)
 Taxel 14:   PE10 (24)
 Taxel 15:   PE12 (26)
 
-Pino dos canais do sensor CN9 e CN10:
+Pino dos canais do sensor CN8, 	CN9 e CN10:
 
 ADC_1_CH3:  PA3  (1)  CN9
 ADC_1_CH9:  PB1  (7)  CN10
