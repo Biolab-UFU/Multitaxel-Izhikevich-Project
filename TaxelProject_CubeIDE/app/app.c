@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "app.h"
+#include <stdlib.h>
 
 #define NUM_TAXELS 16
 
@@ -16,10 +17,10 @@
 #define c       -65     // Potencial de repouso após um spike
 #define d       8       // Ajuste na recuperação após um spike
 #define vth     30      // Potencial de limiar (threshold)
-#define V_min   1.65     // Valor mínimo de tensão do sensor
+#define V_min   1.5     // Valor mínimo de tensão do sensor
 #define V_max   3.3     // Valor máximo de tensão do sensor
 #define dt      0.001       // Intervalo de tempo para discretização
-#define G       20      // Ganho da corrente do modelo
+#define G       100      // Ganho da corrente do modelo (fast G = 500, regular = 700)
 
 // ==================== VARIÁVEIS EXTERNAS ====================
 extern ADC_HandleTypeDef hadc1;      // Manipulador do ADC
@@ -59,7 +60,7 @@ void initialize_taxels(Taxel *taxels, int num) {
         taxels[i].v_m_old = -30;
         taxels[i].v_m_new = -30;
         taxels[i].u_old = 0;
-        taxels[i].u_new = 0;
+        taxels[i].u_new = 0; // Para fast u = 1500, regular u = 1000
         taxels[i].I = 0;
     }
 }
@@ -73,8 +74,8 @@ void app_setup(void)
 }
 
 /**
- * @brief Alterna a coluna ativa dos sensores.
- * @param coluna Número da coluna a ser ativada (0 a 3).
+ * @brief Alterna a linha ativa dos sensores.
+ * @param row Número da linha a ser ativada (0 a 3).
  */
 void select_row(uint8_t row) {
     // Desativa todas as colunas
@@ -104,8 +105,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
         uint16_t adc_values[4];
 
         // Realiza a leitura do ADC para a linha ativa
-        for (uint8_t coluna = 0; coluna < 4; coluna++) {
-        	adc_values[coluna] = adc_buffer[coluna];
+        for (uint8_t column = 0; column < 4; column++) {
+        	adc_values[column] = adc_buffer[column];
         }
 
         // Atualiza a estrutura dos taxels com os valores lidos
@@ -129,11 +130,13 @@ void update_taxels(Taxel *taxels, uint16_t *adc_values, int num) {
         taxels[i].V_sensor_old = taxels[i].V_sensor_new;
         taxels[i].V_sensor_new = adc_values[i] * (3.3 / 4095.0); // Conversão ADC -> Tensão
 
-        float V_old_normalized = normalized_signal(taxels[i].V_sensor_old);
+        //float V_old_normalized = normalized_signal(taxels[i].V_sensor_old);
         float V_new_normalized = normalized_signal(taxels[i].V_sensor_new);
 
         // Calcula a corrente de entrada
-        taxels[i].I = G * (V_new_normalized - V_old_normalized) / dt;
+        //taxels[i].I = G*(absolute_signal(taxels[i].V_sensor_new,taxels[i].V_sensor_old))/ dt;
+        taxels[i].I = G*V_new_normalized;
+        //taxels[i].I = G*taxels[i].V_sensor_new;
 
         // Atualiza o potencial de membrana e a recuperação
         taxels[i].v_m_old = taxels[i].v_m_new;
@@ -151,10 +154,11 @@ void update_taxels(Taxel *taxels, uint16_t *adc_values, int num) {
 
         // Detecta spikes
         if (taxels[i].v_m_new >= vth) {
-            taxels[i].v_m_new = c;
-            taxels[i].u_new += d;
-            HAL_GPIO_WritePin(gpio_map[i].port, gpio_map[i].pin, GPIO_PIN_SET); // Sinaliza spike
-            HAL_GPIO_WritePin(gpio_map[i].port, gpio_map[i].pin, GPIO_PIN_RESET);
+           taxels[i].v_m_new = c;
+           taxels[i].u_new += d;
+           int gpio_index = current_row * 4 + i;
+           HAL_GPIO_WritePin(gpio_map[gpio_index].port, gpio_map[gpio_index].pin, GPIO_PIN_SET); // Sinaliza spike ~10-15us
+           HAL_GPIO_WritePin(gpio_map[gpio_index].port, gpio_map[gpio_index].pin, GPIO_PIN_RESET);
         }
     }
 }
@@ -165,6 +169,18 @@ void update_taxels(Taxel *taxels, uint16_t *adc_values, int num) {
  * @return Valor normalizado.
  */
 float normalized_signal(float V) {
-    return (V - V_min) / (V_max - V_min);
+    return -1*(V - V_max) / (V_max - V_min);
 }
+
+
+/**
+ * @brief Utiliza apenas o módulo
+ * @param V1, V2 Tensões lidas pelo sensor
+ */
+
+float absolute_signal(float V1, float V2) {
+    return (V1 > V2) ? (V1 - V2) : (V2 - V1);
+}
+
+
 

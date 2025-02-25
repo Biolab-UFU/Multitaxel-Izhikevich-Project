@@ -16,19 +16,32 @@ typedef struct {
     float u_old;
     float u_new;
     float I;
-} Taxel;
+} FA;
+
+typedef struct {
+    float V_sensor;
+    float v_m_old;
+    float v_m_new;
+    float u_old;
+    float u_new;
+    float I;
+} SA;
 
 typedef struct {
     GPIO_TypeDef *port;
     uint16_t pin;
-} GPIO_Map;
+} FS_Channels;
+
+typedef struct {
+    GPIO_TypeDef *port;
+    uint16_t pin;
+} RS_Channels;
 
 void initialize_taxels(Taxel *taxels, int num);
 void app_setup(void);
 void select_row(uint8_t coluna);
-void update_taxels(Taxel *taxels, uint16_t *adc_values, int num);
+void update_taxels(FA *fast_response, SA *regular_response,uint16_t *adc_values, int num);
 float normalized_signal(float V);
 float absolute_signal(float V1, float V2);
 
 #endif /* APP_H_ */
-

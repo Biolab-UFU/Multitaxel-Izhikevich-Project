@@ -27,3 +27,59 @@ ROW_1:      PG2  (14) CN8
 ROW_2:      PG3  (16) CN8
 ROW_3:      PA7  (15) CN9
 ROW_4:      PG0  (29) CN9
+
+
+Novos pinos (CN7 e CN10):
+-PB1 e PA7 Conectado no ADC!!!!
+
+Fast              
+PC7    (CN7 11)     
+PB5    (CN7 13)     
+PB3    (CN7 15)      
+PA4    (CN7 17)      
+PB4    (CN7 19)     
+PC2    (CN10 9)     
+PF4    (CN10 11)    
+PB6    (CN10 13)    
+PB2    (CN10 15)     
+PD13   (CN10 19)  
+PD12   (CN10 21)    
+PD11   (CN10 23)     
+PE2    (CN10 25)    
+PA0    (CN10 29)     
+PB0    (CN10 31)     
+PE0    (CN10 33) 
+
+--------------------------------------------------
+Regular
+PA5     (CN7 10)
+PA6     (CN7 12)
+PD14    (CN7 16)
+PD15    (CN7 18)
+PF12    (CN7 20)
+PF13    (CN10 2) 
+PE9     (CN10 4) 
+PE11    (CN10 6) 
+PF14    (CN10 8) 
+PE13    (CN10 10) 
+PF15    (CN10 12) 
+PG14    (CN10 14) 
+PG9     (CN10 16) 
+PE8     (CN10 18) 
+PE7     (CN10 20) 
+PE10    (CN10 24)
+
+
+GPIO_Map gpio_map_FA[NUM_TAXELS] = {
+    {GPIOC, GPIO_PIN_7}, {GPIOB, GPIO_PIN_5}, {GPIOB, GPIO_PIN_3}, {GPIOA, GPIO_PIN_4},
+    {GPIOB, GPIO_PIN_4},  {GPIOC, GPIO_PIN_2},  {GPIOF, GPIO_PIN_4},  {GPIOB, GPIO_PIN_6},
+    {GPIOB, GPIO_PIN_2}, {GPIOD, GPIO_PIN_13}, {GPIOD, GPIO_PIN_12}, {GPIOD, GPIO_PIN_11},
+    {GPIOE, GPIO_PIN_2},  {GPIOA, GPIO_PIN_0},  {GPIOB, GPIO_PIN_0}, {GPIOE, GPIO_PIN_0}
+};
+
+GPIO_Map gpio_map_SA[NUM_TAXELS] = {
+    {GPIOA, GPIO_PIN_5}, {GPIOA, GPIO_PIN_6}, {GPIOA, GPIO_PIN_7}, {GPIOD, GPIO_PIN_14},
+    {GPIOD, GPIO_PIN_15},  {GPIOF, GPIO_PIN_12},  {GPIOF, GPIO_PIN_13},  {GPIOE, GPIO_PIN_9},
+    {GPIOE, GPIO_PIN_11}, {GPIOF, GPIO_PIN_14}, {GPIOE, GPIO_PIN_13}, {GPIOF, GPIO_PIN_15},
+    {GPIOG, GPIO_PIN_14},  {GPIOG, GPIO_PIN_9},  {GPIOE, GPIO_PIN_8}, {GPIOE, GPIO_PIN_7}
+};
