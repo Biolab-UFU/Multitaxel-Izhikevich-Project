@@ -1,9 +1,8 @@
-/test.c
-/test2.c
-/test3.c
-/test4.c
-/.gitignore
-/Simulation
-/IzhikevichArduino
-/Reuniões	
+./test.c
+./test2.c
+./test3.c
+./test4.c
+./Simulation
+./IzhikevichArduino
+./Reuniões	
 
