@@ -1,6 +1,0 @@
-main.c:88:6:timerADC	24	static
-main.c:151:6:processDMA	0	static
-main.c:161:6:setup	8	static
-main.c:241:6:SystemClock_Config	88	static
-main.c:189:5:main	56	static
-main.c:511:6:_Error_Handler	0	static
