@@ -14,6 +14,11 @@ A leitura do sensor é realizada por uma **placa Nucleo STM32F767ZI**, com o fir
 - **Filtro passa-baixa de 10Hz:** Realiza o pré-processamento dos sinais.
 - **STM32F767ZI:** Responsável pela aquisição e processamento do sinal.
 
+![Sensor multitaxel](images/STM32F767.png)
+
+
+![Sensor multitaxel](images/sensor_multitaxel.png)
+
 ### 🔹 **Esquema de Leitura**
 - **As 4 colunas** da matriz estão conectadas aos **canais do ADC1** do STM32F767, com **pull-up de 5.6kΩ**.
 - **As 4 linhas** estão conectadas a **GPIOs** e são ativadas sequencialmente para permitir a multiplexação.
@@ -34,7 +39,8 @@ $$
 
 Se v ≥ 30mV, então: v ← c, u ← u + d
 
-
+![Spikes gerados pelo STM32](images/Spikes-Detection.png)
+![Forma dos Spikes](images/Spikes-Form.png)
 
 Onde:
 - **v** representa o potencial de membrana do neurônio.
@@ -84,8 +90,8 @@ Cada subdiretório contém um **README** específico com detalhes sobre sua func
 
 ---
 
-📌 **Autor:** [Stephan Costa Barros]  
-📅 **Última atualização:** [29/03/2025]  
-💡 **Contato:** [stephanbrrs8@gmail.com]
+📌 **Autor:** Stephan Costa Barros  
+📅 **Última atualização:** 29/03/2025
+💡 **Contato:** stephanbrrs8@gmail.com
 
 
