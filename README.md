@@ -76,7 +76,7 @@ Cada subdiretório contém um **README** específico com detalhes sobre sua func
 ### 🔧 **Passos**
 1. Clone este repositório:  
    ```bash
-   git clone https://github.com/seu-repositorio.git
+   git clone https://github.com/stephan-biomedical-engineer/Biolab.git
    ```
 2. Abra o **STM32CubeIDE** e importe o projeto.
 3. Compile e grave o firmware na placa.
