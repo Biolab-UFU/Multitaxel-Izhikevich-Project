@@ -32,10 +32,7 @@ $$
 \frac{du}{dt} = a(bv - u)
 $$
 
-Se \( v \geq 30mV \), então:
-$$
-v \leftarrow c, \quad u \leftarrow u + d
-$$
+Se v ≥ 30mV, então: v ← c, u ← u + d
 
 
 
