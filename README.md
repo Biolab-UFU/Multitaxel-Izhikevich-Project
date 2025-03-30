@@ -1,4 +1,4 @@
-# 🦾 Sensor Multitaxel com Modelo de Izhikevich
+#Sensor Multitaxel com Modelo de Izhikevich
 
 ## 📌 **Descrição do Projeto**
 Este projeto consiste na aplicação do **Modelo de Izhikevich** para a detecção de **escorregamento** em uma **matriz piezoresistiva**, acoplada à ponta dos dedos de uma **prótese robótica**. A matriz é composta por **4 linhas e 4 colunas**, formando um total de **16 unidades tácteis (taxels)**.
@@ -15,7 +15,7 @@ A leitura do sensor é realizada por uma **placa Nucleo STM32F767ZI**, com o fir
 - **STM32F767ZI:** Responsável pela aquisição e processamento do sinal.
 
 ### 🔹 **Esquema de Leitura**
-- **As 4 colunas** da matriz estão conectadas aos **canais do ADC1** do STM32F767, com **pull-up de 5kΩ**.
+- **As 4 colunas** da matriz estão conectadas aos **canais do ADC1** do STM32F767, com **pull-up de 5.6kΩ**.
 - **As 4 linhas** estão conectadas a **GPIOs** e são ativadas sequencialmente para permitir a multiplexação.
 - O firmware controla a ativação das linhas e a aquisição dos valores analógicos das colunas via **ADC**, permitindo a reconstrução da distribuição de pressão na matriz.
 
@@ -41,9 +41,10 @@ No contexto deste projeto, esse modelo é aplicado à saída da matriz tátil, p
 ---
 
 ## 📂 **Estrutura do Repositório**
-📁 **/hardware** - Esquemáticos e diagramas do sensor multitaxel.  
-📁 **/firmware** - Código-fonte para aquisição e processamento dos sinais.  
-📁 **/docs** - Documentação detalhada sobre o modelo e testes.  
+📁 **/STM32F767** - A documentação necessária para o desenvolvimento na Nucleo Board (Ler Main User Manual e Reference Manual)
+📁 **/hardware** - Hardware, Esquemáticos e diagramas do sensor multitaxel.  
+📁 **/firmware** - Código-fonte para aquisição, geração e processamento dos sinais, e visualização gráfica.  
+📁 **/Artigos** - Artigos desenvolvidos pelo Biolab, e pelo laboratório SINAPSE de Singapura (fabricante do sensor), além de artigos úteis.  
 
 Cada subdiretório contém um **README** específico com detalhes sobre sua funcionalidade.
 
@@ -72,8 +73,8 @@ Cada subdiretório contém um **README** específico com detalhes sobre sua func
 
 ---
 
-📌 **Autor:** [Seu Nome]  
-📅 **Última atualização:** [Data]  
-💡 **Contato:** [Seu e-mail ou GitHub]
+📌 **Autor:** [Stephan Costa Barros]  
+📅 **Última atualização:** [29/03/2025]  
+💡 **Contato:** [stephanbrrs8@gmail.com]
 
 
