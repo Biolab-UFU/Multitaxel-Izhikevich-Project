@@ -49,10 +49,13 @@ No contexto deste projeto, esse modelo é aplicado à saída da matriz tátil, p
 ---
 
 ## 📂 **Estrutura do Repositório**
-📁 **/STM32F767** - A documentação necessária para o desenvolvimento na Nucleo Board (Ler Main User Manual e Reference Manual).
-📁 **/hardware** - Hardware, Esquemáticos e diagramas do sensor multitaxel.  
-📁 **/firmware** - Código-fonte para aquisição, geração e processamento dos sinais, e visualização gráfica.  
-📁 **/Artigos** - Artigos desenvolvidos pelo Biolab, e pelo laboratório SINAPSE de Singapura (fabricante do sensor), além de artigos úteis.  
+📁 /STM32F767 - A documentação necessária para o desenvolvimento na Nucleo Board (Ler Main User Manual e Reference Manual).  
+
+📁 /hardware - Hardware, Esquemáticos e diagramas do sensor multitaxel.  
+
+📁 /firmware - Código-fonte para aquisição, geração e processamento dos sinais, e visualização gráfica.  
+
+📁 /Artigos - Artigos desenvolvidos pelo Biolab, e pelo laboratório SINAPSE de Singapura (fabricante do sensor), além de artigos úteis.  
 
 Cada subdiretório contém um **README** específico com detalhes sobre sua funcionalidade.
 
