@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP MCP601-E_SN
+D MCP601-E/SN Microchip, Op Amp, 2.8MHz, 2.7  6 V, 8-Pin SOIC
+K
+F https://componentsearchengine.com/Datasheets/1/MCP601-E_SN.pdf
+$ENDCMP
+#
+#End Doc Library
