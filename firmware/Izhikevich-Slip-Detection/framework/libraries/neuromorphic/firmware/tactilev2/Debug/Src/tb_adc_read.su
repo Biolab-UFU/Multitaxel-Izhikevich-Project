@@ -1,0 +1,4 @@
+tb_adc_read.c:21:6:select_row	16	static
+tb_adc_read.c:35:6:select_column	8	static
+tb_adc_read.c:69:6:set_adc	8	static
+tb_adc_read.c:85:10:read_adc	24	static
