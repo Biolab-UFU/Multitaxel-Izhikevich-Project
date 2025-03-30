@@ -24,8 +24,20 @@ A leitura do sensor é realizada por uma **placa Nucleo STM32F767ZI**, com o fir
 ## 🧠 **Modelo de Izhikevich**
 O modelo de **Izhikevich (2003)** é um modelo matemático de neurônios que equilibra **simplicidade computacional** e **realismo biológico**. Ele é definido pelas seguintes equações diferenciais:
 
-\[ \frac{dv}{dt} = 0.04v^2 + 5v + 140 - u + I \]
-\[ \frac{du}{dt} = a(bv - u) \]
+$$
+\frac{dv}{dt} = 0.04v^2 + 5v + 140 - u + I
+$$
+
+$$
+\frac{du}{dt} = a(bv - u)
+$$
+
+Se \( v \geq 30mV \), então:
+$$
+v \leftarrow c, \quad u \leftarrow u + d
+$$
+
+
 
 Onde:
 - **v** representa o potencial de membrana do neurônio.
@@ -33,8 +45,7 @@ Onde:
 - **I** é a corrente de entrada.
 - **a, b, c, d** são parâmetros ajustáveis que definem diferentes tipos de comportamento neural.
 
-Quando **v atinge um limite**, ocorre um disparo neuronal, e ele é resetado:
-\[ \text{se } v \geq 30mV, \text{ então } v \leftarrow c, u \leftarrow u + d \]
+Quando **v atinge 30mV**, ocorre um disparo neuronal, e ele é resetado.
 
 No contexto deste projeto, esse modelo é aplicado à saída da matriz tátil, permitindo a identificação de padrões temporais associados ao **escorregamento**.
 
