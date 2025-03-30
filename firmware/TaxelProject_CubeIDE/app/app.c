@@ -131,11 +131,11 @@ void update_taxels(Taxel *taxels, uint16_t *adc_values, int num) {
         taxels[i].V_sensor_new = adc_values[i] * (3.3 / 4095.0); // Conversão ADC -> Tensão
 
         //float V_old_normalized = normalized_signal(taxels[i].V_sensor_old);
-        float V_new_normalized = normalized_signal(taxels[i].V_sensor_new);
+        //float V_new_normalized = normalized_signal(taxels[i].V_sensor_new);
 
         // Calcula a corrente de entrada
-        //taxels[i].I = G*(absolute_signal(taxels[i].V_sensor_new,taxels[i].V_sensor_old))/ dt;
-        taxels[i].I = G*V_new_normalized;
+        taxels[i].I = G*(absolute_signal(taxels[i].V_sensor_new,taxels[i].V_sensor_old))/ dt;
+        //taxels[i].I = G*V_new_normalized;
         //taxels[i].I = G*taxels[i].V_sensor_new;
 
         // Atualiza o potencial de membrana e a recuperação
