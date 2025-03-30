@@ -1,4 +1,4 @@
-#Sensor Multitaxel com Modelo de Izhikevich
+# 🦾 Sensor Multitaxel com Modelo de Izhikevich
 
 ## 📌 **Descrição do Projeto**
 Este projeto consiste na aplicação do **Modelo de Izhikevich** para a detecção de **escorregamento** em uma **matriz piezoresistiva**, acoplada à ponta dos dedos de uma **prótese robótica**. A matriz é composta por **4 linhas e 4 colunas**, formando um total de **16 unidades tácteis (taxels)**.
