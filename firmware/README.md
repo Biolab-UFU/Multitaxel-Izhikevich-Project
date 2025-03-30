@@ -53,9 +53,14 @@ Os parâmetros utilizados são:
 
 A equação do modelo neuronal é:
 
-\[ v_{new} = v_{old} + dt \cdot (0.04 \cdot v_{old}^2 + 5 \cdot v_{old} + 140 - u_{old} + I) \]
+$$
+v_{new} = v_{old} + dt \cdot \left( 0.04 \cdot v_{old}^2 + 5 \cdot v_{old} + 140 - u_{old} + I \right)
+$$
 
-\[ u_{new} = u_{old} + dt \cdot (a \cdot (b \cdot v_{old} - u_{old})) \]
+$$
+u_{new} = u_{old} + dt \cdot \left( a \cdot \left( b \cdot v_{old} - u_{old} \right) \right)
+$$
+
 
 Se **v ≥ vth**, então:
 - **v = c**
