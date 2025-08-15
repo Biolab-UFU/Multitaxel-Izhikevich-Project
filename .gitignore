@@ -27,3 +27,38 @@
 # Arquivos de backup do CubeIDE
 ./firmware/TaxelProject_CubeIDE/*.launch
 
+
+# STM32CubeIDE / Eclipse
+# Build output
+Debug/
+Release/
+**/Debug/
+**/Release/
+
+# Eclipse / CubeIDE metadata (gerado localmente)
+**/.metadata/
+**/.settings/
+*.launch
+*.log
+
+# LiveWatch and plugin data
+**/.plugins/
+**/params.dat
+**/saved_expr.dat
+
+# Compiled objects, images, maps
+*.o
+*.d
+*.elf
+*.bin
+*.hex
+*.map
+
+# Temporary / editor backups
+*~
+*.bak
+*.tmp
+*.swp
+
+# Other
+*.log-*
