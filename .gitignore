@@ -7,3 +7,23 @@
 ./Reuniões	
 ./firmware/TaxelProject_CubeIDE/.metadata/*
 
+# Pastas de build
+./firmware/TaxelProject_CubeIDE/Debug/
+./firmware/TaxelProject_CubeIDE/Release/
+
+# Configurações locais do Eclipse
+./firmware/TaxelProject_CubeIDE/.settings/
+./firmware/TaxelProject_CubeIDE/.metadata/
+
+# Arquivos temporários do Eclipse
+./firmware/TaxelProject_CubeIDE/*.launch
+./firmware/TaxelProject_CubeIDE/*.log
+
+# Arquivos temporários de sistema
+./firmware/TaxelProject_CubeIDE/*.tmp
+./firmware/TaxelProject_CubeIDE/*.swp
+./firmware/TaxelProject_CubeIDE/*.bak
+
+# Arquivos de backup do CubeIDE
+./firmware/TaxelProject_CubeIDE/*.launch
+
