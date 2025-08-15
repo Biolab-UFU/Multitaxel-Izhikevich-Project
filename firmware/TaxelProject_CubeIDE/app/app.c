@@ -25,6 +25,8 @@
 // ==================== VARIÁVEIS EXTERNAS ====================
 extern ADC_HandleTypeDef hadc1;      // Manipulador do ADC
 extern TIM_HandleTypeDef htim6;      // Manipulador do Timer 6
+extern TIM_HandleTypeDef htim2;		 // Manipulador do Timer 2
+extern UART_HandleTypeDef huart1;   // Manipulador da USART 1
 
 // ==================== VARIÁVEIS GLOBAIS ====================
 const uint8_t buffer_size = 4;       // Tamanho do buffer do ADC
@@ -43,6 +45,13 @@ GPIO_Map gpio_map[NUM_TAXELS] = {
     {GPIOE, GPIO_PIN_8},  {GPIOE, GPIO_PIN_7},  {GPIOE, GPIO_PIN_10}, {GPIOE, GPIO_PIN_12}
 };
 
+CircularBuffer spike_buffer;
+
+// Buffer linear temporário para a transmissão via DMA
+#define DMA_TX_BUFFER_SIZE  64 // Tamanho do buffer DMA em eventos
+SpikeEvent dma_tx_buffer[DMA_TX_BUFFER_SIZE];
+
+volatile uint8_t is_dma_tx_in_progress = 0; // Flag para sincronização
 
 // ==================== FUNÇÕES ====================
 
@@ -71,6 +80,9 @@ void app_setup(void)
 	select_row(current_row);
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, buffer_size); // Iniciar ADC com DMA
     HAL_TIM_Base_Start_IT(&htim6);
+    HAL_TIM_Base_Start_IT(&htim2);
+    spike_buffer.head = 0;
+    spike_buffer.tail = 0;
 }
 
 /**
@@ -95,7 +107,47 @@ void select_row(uint8_t row) {
 }
 
 /**
- * @brief Callback executado a cada evento do Timer 6.
+ * @brief Adiciona eventos de Spike no buffer circular
+ * @param timestamp tempo em microssegundos do evento a partir da execução do código
+ * @param gpio_index fonte do Spike
+ */
+static void write_spike_event(uint32_t timestamp, uint8_t gpio_index) {
+    // Verifique se o buffer não está cheio
+    if (((spike_buffer.head + 1) % SPIKE_BUFFER_SIZE) != spike_buffer.tail) {
+        spike_buffer.buffer[spike_buffer.head].timestamp = timestamp;
+        spike_buffer.buffer[spike_buffer.head].channel = gpio_index;
+        spike_buffer.head = (spike_buffer.head + 1) % SPIKE_BUFFER_SIZE;
+    }
+}
+
+/**
+ * @brief Acessa o buffer circular para ler os eventos de Spike
+ */
+static SpikeEvent read_spike_event(void) {
+    SpikeEvent event = {0, 0}; // Valor padrão caso o buffer esteja vazio
+
+    // Verifique se o buffer não está vazio
+    if (spike_buffer.head != spike_buffer.tail) {
+        event = spike_buffer.buffer[spike_buffer.tail];
+        spike_buffer.tail = (spike_buffer.tail + 1) % SPIKE_BUFFER_SIZE;
+    }
+
+    return event;
+}
+
+/**
+ * @brief Callback executado a cada evento completo de transmissão UART
+ * @param huart Manipulador da UART que gerou o evento.
+ */
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart == &huart1) {
+    	// Limpa a flag para permitir uma nova transferência
+        is_dma_tx_in_progress = 0;
+    }
+}
+
+/**
+ * @brief Callback executado a cada evento do Timer 6 e Timer 7
  * @param htim Manipulador do timer que gerou o evento.
  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -115,8 +167,36 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
         current_row = (current_row + 1) % 4;
         select_row(current_row);
     }
-}
 
+
+    if (htim == &htim2) {
+        	// Evita iniciar uma nova transferência se a anterior ainda não terminou
+        	if (is_dma_tx_in_progress == 0) {
+
+        		// Verifique se há dados para enviar
+        		uint16_t available_events = 0;
+        		if (spike_buffer.head >= spike_buffer.tail) {
+        			available_events = spike_buffer.head - spike_buffer.tail;
+        		} else {
+        			available_events = SPIKE_BUFFER_SIZE - spike_buffer.tail + spike_buffer.head;
+        		}
+
+        		if (available_events > 0) {
+        			// Determine quantos eventos enviar, limitado pelo buffer DMA
+        			uint16_t events_to_send = (available_events > DMA_TX_BUFFER_SIZE) ? DMA_TX_BUFFER_SIZE : available_events;
+
+        			// Copia os dados do buffer circular para o buffer linear DMA
+        			for (uint16_t event = 0; event < events_to_send; event++) {
+        				dma_tx_buffer[event] = read_spike_event();
+        			}
+
+        			// Inicia a transferência DMA
+        			is_dma_tx_in_progress = 1; // Define a flag
+        			HAL_UART_Transmit_DMA(&huart1, (uint8_t*)dma_tx_buffer, events_to_send * sizeof(SpikeEvent));
+        		}
+        	}
+    }
+}
 
 /**
  * @brief Atualiza os estados dos taxels com base nas leituras do ADC.
@@ -157,6 +237,12 @@ void update_taxels(Taxel *taxels, uint16_t *adc_values, int num) {
            taxels[i].v_m_new = c;
            taxels[i].u_new += d;
            int gpio_index = current_row * 4 + i;
+           // Pega o timestamp do timer de alta resolução
+           uint32_t timestamp = __HAL_TIM_GET_COUNTER(&htim2);
+
+           // Escreve o evento no buffer
+           write_spike_event(timestamp, (uint8_t)gpio_index);
+
            HAL_GPIO_WritePin(gpio_map[gpio_index].port, gpio_map[gpio_index].pin, GPIO_PIN_SET); // Sinaliza spike ~10-15us
            HAL_GPIO_WritePin(gpio_map[gpio_index].port, gpio_map[gpio_index].pin, GPIO_PIN_RESET);
         }
@@ -168,7 +254,7 @@ void update_taxels(Taxel *taxels, uint16_t *adc_values, int num) {
  * @param V Tensão a ser normalizada.
  * @return Valor normalizado.
  */
-float normalized_signal(float V) {
+uint8_t normalized_signal(uint16_t V) {
     return -1*(V - V_max) / (V_max - V_min);
 }
 
@@ -178,9 +264,8 @@ float normalized_signal(float V) {
  * @param V1, V2 Tensões lidas pelo sensor
  */
 
-float absolute_signal(float V1, float V2) {
+uint16_t absolute_signal(uint16_t V1, uint16_t V2) {
     return (V1 > V2) ? (V1 - V2) : (V2 - V1);
 }
-
 
 

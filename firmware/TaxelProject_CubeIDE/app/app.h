@@ -9,13 +9,13 @@
 #define APP_H_
 
 typedef struct {
-    float V_sensor_old;
-    float V_sensor_new;
-    float v_m_old;
-    float v_m_new;
-    float u_old;
-    float u_new;
-    float I;
+    uint16_t V_sensor_old;
+    uint16_t V_sensor_new;
+    uint16_t v_m_old;
+    uint16_t v_m_new;
+    uint16_t u_old;
+    uint16_t u_new;
+    uint16_t I;
 } Taxel;
 
 typedef struct {
@@ -23,12 +23,26 @@ typedef struct {
     uint16_t pin;
 } GPIO_Map;
 
+typedef struct {
+	uint32_t timestamp;
+	uint8_t channel;
+} SpikeEvent;
+
+#define SPIKE_BUFFER_SIZE 128 // Tamanho do buffer circular para os eventos
+
+// Estrutura para o buffer circular
+typedef struct {
+    SpikeEvent buffer[SPIKE_BUFFER_SIZE];
+    volatile uint16_t head;
+    volatile uint16_t tail;
+} CircularBuffer;
+
 void initialize_taxels(Taxel *taxels, int num);
 void app_setup(void);
 void select_row(uint8_t coluna);
 void update_taxels(Taxel *taxels, uint16_t *adc_values, int num);
-float normalized_signal(float V);
-float absolute_signal(float V1, float V2);
+uint8_t normalized_signal(uint16_t V);
+uint16_t absolute_signal(uint16_t V1, uint16_t V2);
 
 #endif /* APP_H_ */
 
